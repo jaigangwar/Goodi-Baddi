@@ -1,7 +1,8 @@
 // Authentication Context
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { getUser, getToken, isAuthenticated as checkAuth, logout as authLogout } from '../utils/auth';
+import { supabase } from '../config/supabaseClient';
+import { getUser, getToken, isAuthenticated as checkAuth, logout as authLogout, setToken, setUser as setLocalUser } from '../utils/auth';
 
 const AuthContext = createContext(null);
 
@@ -11,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check authentication status on mount
+    // 1. Initial Check from Local Storage (for fast load)
     const token = getToken();
     const userData = getUser();
     
@@ -20,7 +21,41 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
     }
     
-    setLoading(false);
+    // 2. Listen to Supabase Auth Changes (Crucial for Google OAuth)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        // Fetch custom profile data if needed, or use session meta
+        const { data: profile } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        const customUser = {
+          id: session.user.id,
+          email: session.user.email,
+          companyName: profile?.company_name || session.user.user_metadata?.full_name || 'My Company',
+          hrName: profile?.hr_name || session.user.user_metadata?.name || 'HR Admin',
+          role: profile?.role || 'Company',
+          status: profile?.status || 'Verified'
+        };
+
+        setToken(session.access_token);
+        setLocalUser(customUser);
+        
+        setUser(customUser);
+        setIsAuthenticated(true);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+        authLogout();
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const login = (userData, token) => {
@@ -28,7 +63,8 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     authLogout();
     setUser(null);
     setIsAuthenticated(false);
@@ -36,6 +72,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = (userData) => {
     setUser(userData);
+    setLocalUser(userData);
   };
 
   const value = {
