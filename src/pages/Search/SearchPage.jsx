@@ -1,8 +1,8 @@
-// Search Page
-
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useLocation } from 'react-router-dom';
 import { searchEmployees } from '../../services/employeeService';
+import { motion } from 'framer-motion';
+import { Search, User, Mail, Phone, ExternalLink, Star, Briefcase, Building } from 'lucide-react';
 import './SearchPage.css';
 
 const SearchPage = () => {
@@ -20,7 +20,6 @@ const SearchPage = () => {
   const [message, setMessage] = useState(location.state?.message || '');
 
   useEffect(() => {
-    // Auto-search if query param exists
     if (searchParams.get('q')) {
       handleSearch();
     }
@@ -33,18 +32,14 @@ const SearchPage = () => {
 
   const handleSearch = async (e) => {
     if (e) e.preventDefault();
-    
-    // Check if at least one field is filled
     const hasQuery = Object.values(formData).some(val => val.trim() !== '');
     if (!hasQuery) {
       setMessage('Please enter at least one search parameter');
       return;
     }
-
     setLoading(true);
     setMessage('');
     setSearched(true);
-
     try {
       const params = {};
       if (formData.name) params.name = formData.name;
@@ -53,11 +48,10 @@ const SearchPage = () => {
       if (formData.linkedin) params.linkedin = formData.linkedin;
 
       const response = await searchEmployees(params);
-      
       if (response.success) {
         setResults(response.results);
         if (response.results.length === 0) {
-          setMessage('No employees found matching your search criteria');
+          setMessage('No employees found matching your search criteria.');
         }
       }
     } catch (error) {
@@ -68,161 +62,120 @@ const SearchPage = () => {
   };
 
   const handleClear = () => {
-    setFormData({
-      name: '',
-      mobile: '',
-      email: '',
-      linkedin: ''
-    });
+    setFormData({ name: '', mobile: '', email: '', linkedin: '' });
     setResults([]);
     setSearched(false);
     setMessage('');
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="search-page">
-      <div className="search-container">
-        <div className="search-header">
-          <h1>Search Employees</h1>
-          <p>Find candidate profiles by name, email, mobile, or LinkedIn</p>
+    <div className="bento-search-page">
+      <div className="bento-container-narrow">
+        <div className="search-header-premium">
+          <motion.h1 initial={{opacity:0, y:-20}} animate={{opacity:1, y:0}}>Find Candidates</motion.h1>
+          <motion.p initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.2}}>
+            Lookup verified professional histories from our trusted ecosystem.
+          </motion.p>
         </div>
 
-        {/* Search Form */}
-        <div className="search-form-card">
-          <form onSubmit={handleSearch} className="search-form-grid">
-            <div className="form-group">
-              <label htmlFor="name">Full Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="e.g., Rahul Sharma"
-              />
+        {/* Search Bento Box */}
+        <motion.div className="bento-card search-filter-card" initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}}>
+          <form onSubmit={handleSearch} className="premium-filter-form">
+            <div className="filter-grid">
+              <div className="premium-input-group">
+                <User className="input-icon" size={18} />
+                <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" />
+              </div>
+              <div className="premium-input-group">
+                <Phone className="input-icon" size={18} />
+                <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Mobile Number" />
+              </div>
+              <div className="premium-input-group">
+                <Mail className="input-icon" size={18} />
+                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email Address" />
+              </div>
+              <div className="premium-input-group">
+                <ExternalLink className="input-icon" size={18} />
+                <input type="url" name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="LinkedIn URL" />
+              </div>
             </div>
-
-            <div className="form-group">
-              <label htmlFor="mobile">Mobile Number</label>
-              <input
-                type="tel"
-                id="mobile"
-                name="mobile"
-                value={formData.mobile}
-                onChange={handleChange}
-                placeholder="e.g., 9876543210"
-                maxLength="10"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="email">Email Address</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="e.g., employee@example.com"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="linkedin">LinkedIn URL</label>
-              <input
-                type="url"
-                id="linkedin"
-                name="linkedin"
-                value={formData.linkedin}
-                onChange={handleChange}
-                placeholder="e.g., https://linkedin.com/in/username"
-              />
-            </div>
-
-            <div className="form-actions">
-              <button type="submit" className="btn-search" disabled={loading}>
-                {loading ? 'Searching...' : '🔍 Search'}
-              </button>
-              <button type="button" onClick={handleClear} className="btn-clear">
-                Clear
+            <div className="filter-actions">
+              <button type="button" onClick={handleClear} className="btn-bento-secondary">Clear</button>
+              <button type="submit" className="btn-bento-primary" disabled={loading}>
+                {loading ? 'Searching...' : <><Search size={18} /> Search Ecosystem</>}
               </button>
             </div>
           </form>
-        </div>
+        </motion.div>
 
-        {/* Message */}
         {message && (
-          <div className={`message ${results.length === 0 ? 'info' : 'success'}`}>
+          <motion.div className={`message ${results.length === 0 ? 'info' : 'success'}`} initial={{opacity:0}} animate={{opacity:1}}>
             {message}
-          </div>
+          </motion.div>
         )}
 
-        {/* Search Results */}
         {searched && !loading && (
-          <div className="search-results">
-            <div className="results-header">
-              <h2>Search Results</h2>
-              <span className="results-count">{results.length} employee(s) found</span>
+          <motion.div className="search-results-bento" variants={containerVariants} initial="hidden" animate="visible">
+            <div className="results-meta">
+              <h2>Verified Records</h2>
+              <span className="badge-count">{results.length} Found</span>
             </div>
 
             {results.length > 0 ? (
-              <div className="results-grid">
+              <div className="bento-results-grid">
                 {results.map((employee) => (
-                  <Link
-                    key={employee.id}
-                    to={`/employee/${employee.id}`}
-                    className="result-card"
-                  >
-                    <div className="result-header">
-                      <div className="result-avatar">
-                        {employee.employeeName.charAt(0).toUpperCase()}
+                  <motion.div key={employee.id} variants={itemVariants}>
+                    <Link to={`/employee/${employee.id}`} className="bento-card result-bento-card">
+                      <div className="result-header">
+                        <div className="result-avatar-bento">
+                          {employee.employeeName.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="result-main-info">
+                          <h3>{employee.employeeName}</h3>
+                          <div className="designation-badge">
+                            <Briefcase size={14} /> {employee.designation}
+                          </div>
+                        </div>
+                        <div className="result-rating-bento">
+                          <Star size={16} className="star-icon" />
+                          <span>{employee.rating ? employee.rating.toFixed(1) : 'N/A'}</span>
+                        </div>
                       </div>
-                      <div className="result-info">
-                        <h3>{employee.employeeName}</h3>
-                        <p className="designation">{employee.designation}</p>
-                      </div>
-                    </div>
 
-                    <div className="result-details">
-                      <div className="detail-item">
-                        <span className="detail-label">Company:</span>
-                        <span className="detail-value">{employee.companyName}</span>
+                      <div className="result-body-bento">
+                        <div className="bento-detail-row">
+                          <Building size={16} /> <span>{employee.companyName}</span>
+                        </div>
+                        <div className="bento-detail-row">
+                          <Mail size={16} /> <span>{employee.email}</span>
+                        </div>
+                        <div className="bento-detail-row">
+                          <Phone size={16} /> <span>{employee.mobile}</span>
+                        </div>
                       </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Email:</span>
-                        <span className="detail-value">{employee.email}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Mobile:</span>
-                        <span className="detail-value">{employee.mobile}</span>
-                      </div>
-                    </div>
-
-                    <div className="result-footer">
-                      <span className="rating">
-                        ⭐ {employee.rating ? employee.rating.toFixed(1) : 'N/A'}
-                      </span>
-                      <span className="view-profile">View Profile →</span>
-                    </div>
-                  </Link>
+                    </Link>
+                  </motion.div>
                 ))}
               </div>
             ) : (
-              <div className="empty-results">
-                <div className="empty-icon">🔍</div>
-                <h3>No Results Found</h3>
-                <p>Try adjusting your search criteria</p>
-              </div>
+              <motion.div className="bento-card empty-bento" variants={itemVariants}>
+                <div className="empty-icon-box">
+                  <Search size={32} />
+                </div>
+                <h3>No Candidates Found</h3>
+                <p>Try refining your search parameters.</p>
+              </motion.div>
             )}
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="loading">
-            <div className="spinner"></div>
-            <p>Searching employees...</p>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

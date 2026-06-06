@@ -1,9 +1,9 @@
-// Employee Profile Page
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getEmployeeById, deleteEmployee } from '../../services/employeeService';
 import { submitReport } from '../../services/reportService';
+import { motion } from 'framer-motion';
+import { Briefcase, Building, Calendar, Mail, Phone, ExternalLink, Star, Edit2, Trash2, Flag, CheckCircle, XCircle } from 'lucide-react';
 import './EmployeeProfilePage.css';
 
 const EmployeeProfilePage = () => {
@@ -13,10 +13,7 @@ const EmployeeProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [reportData, setReportData] = useState({
-    category: 'Wrong Employee Record',
-    description: ''
-  });
+  const [reportData, setReportData] = useState({ category: 'Wrong Employee Record', description: '' });
   const [reportMessage, setReportMessage] = useState('');
 
   useEffect(() => {
@@ -27,7 +24,6 @@ const EmployeeProfilePage = () => {
     try {
       setLoading(true);
       const response = await getEmployeeById(id);
-      
       if (response.success) {
         setEmployee(response.employee);
       }
@@ -52,14 +48,13 @@ const EmployeeProfilePage = () => {
 
   const handleReport = async (e) => {
     e.preventDefault();
-    
     try {
       const response = await submitReport({
-        contentType: 'EmployeeRecord',
-        contentId: id,
-        ...reportData
+        targetType: 'Employee',
+        targetId: id,
+        reason: reportData.category,
+        description: reportData.description
       });
-      
       if (response.success) {
         setReportMessage('Report submitted successfully');
         setTimeout(() => {
@@ -75,236 +70,171 @@ const EmployeeProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="loading">
-        <div className="spinner"></div>
+      <div className="dashboard-loading">
+        <div className="loader-pulse"></div>
       </div>
     );
   }
 
   if (!employee) {
     return (
-      <div className="container" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+      <div className="bento-container-narrow" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
         <h2>Employee Not Found</h2>
-        <Link to="/search" className="btn-primary">Back to Search</Link>
+        <Link to="/search" className="btn-bento-primary">Back to Search</Link>
       </div>
     );
   }
 
   return (
-    <div className="profile-page">
-      <div className="profile-container">
-        {/* Header */}
-        <div className="profile-header-section">
-          <button onClick={() => navigate(-1)} className="btn-back">
-            ← Back
-          </button>
-          <div className="header-actions">
-            <Link to={`/edit-employee/${id}`} className="btn-edit">✏️ Edit</Link>
-            <button onClick={() => setShowDeleteConfirm(true)} className="btn-delete">🗑️ Delete</button>
-            <button onClick={() => setShowReportModal(true)} className="btn-report">🚩 Report</button>
+    <div className="bento-profile-page">
+      <div className="profile-container-bento">
+        {/* Header Actions */}
+        <div className="profile-actions-bar">
+          <button onClick={() => navigate(-1)} className="btn-bento-secondary">← Back</button>
+          <div className="action-group">
+            <Link to={`/edit-employee/${id}`} className="btn-bento-outline"><Edit2 size={16}/> Edit</Link>
+            <button onClick={() => setShowDeleteConfirm(true)} className="btn-bento-danger"><Trash2 size={16}/> Delete</button>
+            <button onClick={() => setShowReportModal(true)} className="btn-bento-warning"><Flag size={16}/> Report</button>
           </div>
         </div>
 
-        {/* Personal Details */}
-        <div className="profile-card">
-          <div className="profile-main">
-            <div className="profile-avatar-large">
+        {/* Hero Card */}
+        <motion.div className="bento-card profile-hero" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}}>
+          <div className="profile-hero-bg"></div>
+          <div className="profile-hero-content">
+            <div className="hero-avatar">
               {employee.employeeName.charAt(0).toUpperCase()}
             </div>
-            <div className="profile-main-info">
+            <div className="hero-info">
               <h1>{employee.employeeName}</h1>
-              <p className="current-designation">{employee.designation}</p>
-              <div className="profile-rating">
-                <span className="rating-stars">
-                  {'⭐'.repeat(Math.round(employee.overallRating))}
-                </span>
-                <span className="rating-value">{employee.overallRating} / 5.0</span>
-                <span className="rating-count">({employee.feedbackCount} reviews)</span>
+              <div className="hero-tags">
+                <span className="hero-tag"><Briefcase size={14}/> {employee.designation}</span>
+                <span className="hero-tag"><Building size={14}/> {employee.companyName}</span>
               </div>
+            </div>
+            <div className="hero-rating">
+              <div className="rating-score">
+                <Star size={24} className="fill-star" />
+                <span>{employee.rating ? employee.rating.toFixed(1) : 'N/A'}</span>
+              </div>
+              <span className="rating-subtitle">Average Rating</span>
             </div>
           </div>
-
-          <div className="profile-contact">
-            <div className="contact-item">
-              <span className="contact-label">📧 Email:</span>
-              <span className="contact-value">{employee.email}</span>
-            </div>
-            <div className="contact-item">
-              <span className="contact-label">📱 Mobile:</span>
-              <span className="contact-value">{employee.mobile}</span>
-            </div>
+          
+          <div className="profile-contact-strip">
+            <div className="contact-node"><Mail size={16}/> {employee.email}</div>
+            <div className="contact-node"><Phone size={16}/> {employee.mobile}</div>
             {employee.linkedinUrl && (
-              <div className="contact-item">
-                <span className="contact-label">🔗 LinkedIn:</span>
-                <a href={employee.linkedinUrl} target="_blank" rel="noopener noreferrer" className="contact-link">
-                  View Profile
-                </a>
-              </div>
+              <a href={employee.linkedinUrl} target="_blank" rel="noopener noreferrer" className="contact-node link">
+                <ExternalLink size={16}/> LinkedIn Profile
+              </a>
             )}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Employment History */}
-        <div className="section-card">
-          <h2>Employment History</h2>
-          <div className="employment-timeline">
-            {employee.employmentHistory.map((job, index) => (
-              <div key={index} className="timeline-item">
-                <div className="timeline-marker"></div>
-                <div className="timeline-content">
-                  <h3>{job.designation}</h3>
-                  <p className="company">{job.company}</p>
-                  <p className="duration">
-                    {new Date(job.joiningDate).toLocaleDateString()} - {new Date(job.leavingDate).toLocaleDateString()}
-                  </p>
-                  <p className="reason">
-                    <strong>Reason for leaving:</strong> {job.reasonForLeaving}
-                  </p>
+        {/* History & Feedbacks Grid */}
+        <div className="profile-bento-grid">
+          {/* Work History (Spans 1 col) */}
+          <motion.div className="bento-card work-history" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}}>
+            <h3 className="card-title">Employment Timeline</h3>
+            <div className="timeline-bento">
+              <div className="timeline-node">
+                <div className="node-dot"></div>
+                <div className="node-content">
+                  <h4>{employee.designation}</h4>
+                  <span className="node-company">{employee.companyName}</span>
+                  <div className="node-meta">
+                    <Calendar size={14}/> 
+                    <span>{new Date(employee.joiningDate).toLocaleDateString()} - {employee.leavingDate ? new Date(employee.leavingDate).toLocaleDateString() : 'Present'}</span>
+                  </div>
+                  {employee.reasonForLeaving && (
+                    <div className="node-reason">
+                      <strong>Reason for exit:</strong> {employee.reasonForLeaving}
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          </motion.div>
 
-        {/* Feedback History */}
-        <div className="section-card">
-          <h2>Feedback from Previous Employers</h2>
-          {employee.feedbacks && employee.feedbacks.length > 0 ? (
-            <div className="feedback-list">
-              {employee.feedbacks.map((feedback) => (
-                <div key={feedback.id} className="feedback-card">
-                  <div className="feedback-header">
-                    <div>
-                      <h3>{feedback.companyName}</h3>
-                      <p className="feedback-date">
-                        {new Date(feedback.createdAt).toLocaleDateString()}
-                      </p>
+          {/* Feedback Section (Spans 2 cols) */}
+          <motion.div className="bento-card feedback-section" initial={{opacity:0, x:20}} animate={{opacity:1, x:0}}>
+            <div className="feedback-header">
+              <h3 className="card-title">Verified Feedback</h3>
+              <Link to={`/add-feedback/${id}`} className="btn-bento-primary btn-sm">Add Review</Link>
+            </div>
+            
+            {employee.feedbacks && employee.feedbacks.length > 0 ? (
+              <div className="feedback-list-bento">
+                {employee.feedbacks.map((fb) => (
+                  <div key={fb.id} className="feedback-bento-item">
+                    <div className="fb-top">
+                      <div className="fb-author">
+                        <div className="fb-company-avatar">{fb.companyName.charAt(0)}</div>
+                        <div>
+                          <h4>{fb.companyName}</h4>
+                          <span>{new Date(fb.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <div className="fb-score"><Star size={16}/> {fb.rating}.0</div>
                     </div>
-                    <div className="feedback-rating">
-                      {'⭐'.repeat(feedback.rating)}
-                    </div>
+                    
+                    {(fb.positives?.length > 0 || fb.negatives?.length > 0) && (
+                      <div className="fb-tags">
+                        {fb.positives?.map((p, i) => <span key={i} className="fb-tag positive"><CheckCircle size={14}/> {p}</span>)}
+                        {fb.negatives?.map((n, i) => <span key={i} className="fb-tag negative"><XCircle size={14}/> {n}</span>)}
+                      </div>
+                    )}
+                    
+                    {fb.comments && <p className="fb-comment">"{fb.comments}"</p>}
                   </div>
-
-                  {feedback.positiveCategories && feedback.positiveCategories.length > 0 && (
-                    <div className="feedback-categories">
-                      <h4>Positive Points:</h4>
-                      <div className="category-badges">
-                        {feedback.positiveCategories.map((cat, idx) => (
-                          <span key={idx} className="badge badge-positive">
-                            ✓ {cat}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {feedback.negativeCategories && feedback.negativeCategories.length > 0 && (
-                    <div className="feedback-categories">
-                      <h4>Areas for Improvement:</h4>
-                      <div className="category-badges">
-                        {feedback.negativeCategories.map((cat, idx) => (
-                          <span key={idx} className="badge badge-negative">
-                            ✗ {cat}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {feedback.hrComments && (
-                    <div className="feedback-comments">
-                      <h4>HR Comments:</h4>
-                      <p>{feedback.hrComments}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-feedback">
-              <p>No feedback available yet</p>
-            </div>
-          )}
-        </div>
-
-        {/* Add Feedback Button */}
-        <div className="action-section">
-          <Link to={`/add-feedback/${id}`} className="btn-primary btn-large">
-            ➕ Add Feedback for this Employee
-          </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-bento">
+                <Star size={32} opacity={0.3} />
+                <p>No verified feedback yet.</p>
+              </div>
+            )}
+          </motion.div>
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Modals... */}
       {showDeleteConfirm && (
         <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
-          <div className="modal-content modal-sm" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Delete Employee Record</h2>
-              <button onClick={() => setShowDeleteConfirm(false)} className="btn-close">✕</button>
-            </div>
-            <div className="modal-body">
-              <p>Are you sure you want to delete the record for <strong>{employee?.employeeName}</strong>?</p>
-              <p className="text-muted">This action cannot be undone.</p>
-            </div>
-            <div className="modal-actions">
-              <button onClick={() => setShowDeleteConfirm(false)} className="btn-secondary">Cancel</button>
-              <button onClick={handleDelete} className="btn-danger">Delete Permanently</button>
+          <div className="bento-card modal-content" onClick={e => e.stopPropagation()}>
+            <h2 className="card-title">Delete Record?</h2>
+            <p>Are you sure you want to permanently delete <strong>{employee.employeeName}</strong>?</p>
+            <div className="modal-actions-bento">
+              <button onClick={() => setShowDeleteConfirm(false)} className="btn-bento-secondary">Cancel</button>
+              <button onClick={handleDelete} className="btn-bento-danger">Delete</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Report Modal */}
       {showReportModal && (
         <div className="modal-overlay" onClick={() => setShowReportModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Report Employee Record</h2>
-              <button onClick={() => setShowReportModal(false)} className="btn-close">
-                ✕
-              </button>
-            </div>
-
-            {reportMessage && (
-              <div className={`message ${reportMessage.includes('success') ? 'success' : 'error'}`}>
-                {reportMessage}
-              </div>
-            )}
-
-            <form onSubmit={handleReport} className="report-form">
+          <div className="bento-card modal-content" onClick={e => e.stopPropagation()}>
+            <h2 className="card-title">Report Record</h2>
+            {reportMessage && <div className="message success">{reportMessage}</div>}
+            <form onSubmit={handleReport} className="report-form-bento">
               <div className="form-group">
-                <label htmlFor="category">Report Category</label>
-                <select
-                  id="category"
-                  value={reportData.category}
-                  onChange={(e) => setReportData(prev => ({ ...prev, category: e.target.value }))}
-                  required
-                >
-                  <option value="Wrong Employee Record">Wrong Employee Record</option>
-                  <option value="Fake Feedback">Fake Feedback</option>
-                  <option value="Abuse/Spam">Abuse/Spam</option>
+                <label>Category</label>
+                <select value={reportData.category} onChange={e => setReportData({...reportData, category: e.target.value})}>
+                  <option>Wrong Employee Record</option>
+                  <option>Fake Information</option>
+                  <option>Spam</option>
                 </select>
               </div>
-
               <div className="form-group">
-                <label htmlFor="description">Description (Optional)</label>
-                <textarea
-                  id="description"
-                  value={reportData.description}
-                  onChange={(e) => setReportData(prev => ({ ...prev, description: e.target.value }))}
-                  rows="4"
-                  placeholder="Provide additional details about this report..."
-                ></textarea>
+                <label>Details</label>
+                <textarea rows="3" value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})}></textarea>
               </div>
-
-              <div className="modal-actions">
-                <button type="button" onClick={() => setShowReportModal(false)} className="btn-secondary">
-                  Cancel
-                </button>
-                <button type="submit" className="btn-danger">
-                  Submit Report
-                </button>
+              <div className="modal-actions-bento">
+                <button type="button" onClick={() => setShowReportModal(false)} className="btn-bento-secondary">Cancel</button>
+                <button type="submit" className="btn-bento-warning">Submit Report</button>
               </div>
             </form>
           </div>
