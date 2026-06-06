@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ShieldCheck, Search, Users, Zap, CheckCircle2, ChevronRight, Lock, Award } from 'lucide-react';
@@ -45,6 +46,21 @@ const LandingTiltCard = ({ children, className }) => {
 };
 
 const LandingPage = () => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  
+  // Track global mouse position for the background 3D effect
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth) * 2 - 1, // Range -1 to 1
+        y: (e.clientY / window.innerHeight) * 2 - 1
+      });
+    };
+    
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+  }, []);
+
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
@@ -57,10 +73,26 @@ const LandingPage = () => {
 
   return (
     <div className="premium-landing">
-      {/* Dynamic Background */}
-      <div className="landing-bg">
-        <div className="glow-orb orb-1"></div>
-        <div className="glow-orb orb-2"></div>
+      {/* Dynamic 3D Tracking Background */}
+      <div className="landing-bg" style={{
+         transform: `perspective(1000px) rotateX(${mousePos.y * -5}deg) rotateY(${mousePos.x * 5}deg)`
+      }}>
+        <motion.div 
+          className="glow-orb orb-1"
+          animate={{
+            x: mousePos.x * -50,
+            y: mousePos.y * -50,
+          }}
+          transition={{ type: 'spring', damping: 50, stiffness: 200 }}
+        />
+        <motion.div 
+          className="glow-orb orb-2"
+          animate={{
+            x: mousePos.x * 70,
+            y: mousePos.y * 70,
+          }}
+          transition={{ type: 'spring', damping: 40, stiffness: 150 }}
+        />
         <div className="grid-overlay"></div>
       </div>
 
