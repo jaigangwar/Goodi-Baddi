@@ -22,8 +22,8 @@ export const COMPANY_STATUS = {
 
 // User Roles
 export const USER_ROLES = {
-  SUPER_ADMIN: 'Super_Admin',
-  COMPANY_ADMIN: 'Company_Admin',
+  SUPER_ADMIN: 'Admin',
+  COMPANY_ADMIN: 'Company',
   HR: 'HR'
 };
 

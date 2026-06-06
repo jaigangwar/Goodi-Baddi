@@ -35,7 +35,7 @@ const Header = () => {
               <Link to="/add-employee" className="nav-link">
                 <UserPlus size={18} /> <span>Add</span>
               </Link>
-              {user?.role === 'Super_Admin' && (
+              {user?.role === 'Admin' && (
                 <Link to="/admin" className="nav-link">
                   <Shield size={18} /> <span>Admin</span>
                 </Link>

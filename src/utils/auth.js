@@ -63,9 +63,9 @@ export const isVerified = () => {
 /**
  * Check if user is Super Admin
  */
-export const isSuperAdmin = () => {
+export const isAdmin = () => {
   const user = getUser();
-  return user && user.role === 'Super_Admin';
+  return user && user.role === 'Admin';
 };
 
 /**

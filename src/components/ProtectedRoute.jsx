@@ -30,7 +30,7 @@ const ProtectedRoute = ({ children, requireVerified = true, requireAdmin = false
     );
   }
 
-  if (requireAdmin && user?.role !== 'Super_Admin') {
+  if (requireAdmin && user?.role !== 'Admin') {
     return <Navigate to="/dashboard" replace />;
   }
 
