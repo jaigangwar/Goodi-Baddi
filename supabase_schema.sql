@@ -19,16 +19,16 @@ create policy "Public companies are viewable by everyone." on public.companies f
 create policy "Users can update own profile." on public.companies for update using (auth.uid() = id);
 
 -- Trigger to create company profile on signup
-create function public.handle_new_user()
+create or replace function public.handle_new_user()
 returns trigger as $$
 begin
   insert into public.companies (id, company_name, hr_name, email, mobile, linkedin_url, status, role)
   values (
     new.id,
-    new.raw_user_meta_data->>'companyName',
-    new.raw_user_meta_data->>'hrName',
+    COALESCE(new.raw_user_meta_data->>'companyName', new.raw_user_meta_data->>'full_name', 'My Company'),
+    COALESCE(new.raw_user_meta_data->>'hrName', new.raw_user_meta_data->>'name', 'HR Admin'),
     new.email,
-    new.raw_user_meta_data->>'mobile',
+    COALESCE(new.raw_user_meta_data->>'mobile', '0000000000'),
     new.raw_user_meta_data->>'linkedinUrl',
     'Pending',
     'Company'
