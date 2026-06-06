@@ -1,10 +1,50 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ShieldCheck, Search, Users, Zap, CheckCircle2, ChevronRight, Lock, Award } from 'lucide-react';
 import './LandingPage.css';
 
+// 3D Tilt Card Component for Landing Page
+const LandingTiltCard = ({ children, className }) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseXSpring = useSpring(x, { stiffness: 400, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 400, damping: 30 });
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      className={className}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateY, rotateX, transformStyle: "preserve-3d" }}
+      whileHover={{ scale: 1.02 }}
+    >
+      <div style={{ transform: "translateZ(40px)", height: "100%" }}>
+        {children}
+      </div>
+    </motion.div>
+  );
+};
+
 const LandingPage = () => {
-  // Animation Variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
@@ -82,57 +122,67 @@ const LandingPage = () => {
         </div>
         
         <motion.div 
-          className="bento-grid"
+          className="landing-bento-grid"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={staggerContainer}
         >
-          <motion.div className="bento-card bento-large" variants={fadeInUp}>
-            <div className="bento-content">
-              <div className="bento-icon-wrapper blue">
-                <Search size={28} />
+          <LandingTiltCard className="landing-bento-card bento-large">
+            <motion.div variants={fadeInUp} style={{height: "100%"}}>
+              <div className="landing-bento-content">
+                <div className="landing-bento-icon blue">
+                  <Search size={28} />
+                </div>
+                <h3>Deep Candidate Search</h3>
+                <p>Find candidate profiles instantly using name, email, mobile, or LinkedIn URL. Our fuzzy search algorithm ensures you never miss a record.</p>
               </div>
-              <h3>Deep Candidate Search</h3>
-              <p>Find candidate profiles instantly using name, email, mobile, or LinkedIn URL. Our fuzzy search algorithm ensures you never miss a record.</p>
-            </div>
-          </motion.div>
+            </motion.div>
+          </LandingTiltCard>
 
-          <motion.div className="bento-card bento-small" variants={fadeInUp}>
-            <div className="bento-icon-wrapper green">
-              <ShieldCheck size={28} />
-            </div>
-            <h3>Verified Reviews</h3>
-            <p>Only admin-approved companies can leave feedback, ensuring 100% authentic data.</p>
-          </motion.div>
-
-          <motion.div className="bento-card bento-small" variants={fadeInUp}>
-            <div className="bento-icon-wrapper purple">
-              <Lock size={28} />
-            </div>
-            <h3>Enterprise Security</h3>
-            <p>Bank-grade encryption and Row Level Security keeps your company data private.</p>
-          </motion.div>
-
-          <motion.div className="bento-card bento-medium" variants={fadeInUp}>
-            <div className="bento-content">
-              <div className="bento-icon-wrapper orange">
-                <Award size={28} />
+          <LandingTiltCard className="landing-bento-card bento-small">
+            <motion.div variants={fadeInUp} style={{height: "100%"}}>
+               <div className="landing-bento-icon green">
+                <ShieldCheck size={28} />
               </div>
-              <h3>Smart Rating System</h3>
-              <p>Automated average rating calculation based on detailed positive and negative feedback points.</p>
-            </div>
-          </motion.div>
+              <h3>Verified Reviews</h3>
+              <p>Only admin-approved companies can leave feedback, ensuring 100% authentic data.</p>
+            </motion.div>
+          </LandingTiltCard>
 
-          <motion.div className="bento-card bento-medium" variants={fadeInUp}>
-            <div className="bento-content">
-              <div className="bento-icon-wrapper yellow">
-                <Zap size={28} />
+          <LandingTiltCard className="landing-bento-card bento-small">
+             <motion.div variants={fadeInUp} style={{height: "100%"}}>
+              <div className="landing-bento-icon purple">
+                <Lock size={28} />
               </div>
-              <h3>Seamless Integration</h3>
-              <p>Lightning-fast PWA experience that feels like a native app on both desktop and mobile.</p>
-            </div>
-          </motion.div>
+              <h3>Enterprise Security</h3>
+              <p>Bank-grade encryption and Row Level Security keeps your company data private.</p>
+            </motion.div>
+          </LandingTiltCard>
+
+          <LandingTiltCard className="landing-bento-card bento-medium">
+             <motion.div variants={fadeInUp} style={{height: "100%"}}>
+              <div className="landing-bento-content">
+                <div className="landing-bento-icon orange">
+                  <Award size={28} />
+                </div>
+                <h3>Smart Rating System</h3>
+                <p>Automated average rating calculation based on detailed positive and negative feedback points.</p>
+              </div>
+            </motion.div>
+          </LandingTiltCard>
+
+          <LandingTiltCard className="landing-bento-card bento-medium">
+             <motion.div variants={fadeInUp} style={{height: "100%"}}>
+              <div className="landing-bento-content">
+                <div className="landing-bento-icon yellow">
+                  <Zap size={28} />
+                </div>
+                <h3>Seamless Integration</h3>
+                <p>Lightning-fast PWA experience that feels like a native app on both desktop and mobile.</p>
+              </div>
+            </motion.div>
+          </LandingTiltCard>
         </motion.div>
       </section>
 

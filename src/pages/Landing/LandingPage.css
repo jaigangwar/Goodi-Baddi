@@ -3,12 +3,10 @@
 
 :root {
   --bg-dark: #09090b;
-  --bg-card: #18181b;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  --accent-color: #3b82f6;
-  --accent-glow: rgba(59, 130, 246, 0.5);
   --border-light: rgba(255, 255, 255, 0.1);
+  --landing-card-bg: #18181b; /* Specific to landing page */
 }
 
 .premium-landing {
@@ -17,6 +15,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   overflow-x: hidden;
   position: relative;
+  min-height: 100vh;
 }
 
 /* Dynamic Background */
@@ -76,7 +75,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8rem 2rem 4rem;
+  padding: 10rem 2rem 4rem; /* Extra padding top for floating header */
   text-align: center;
 }
 
@@ -235,7 +234,7 @@
   margin: 0 auto;
 }
 
-/* Bento Grid Features */
+/* Specific Bento Cards for Landing Page ONLY */
 .features-section {
   padding: 6rem 2rem;
   position: relative;
@@ -244,30 +243,27 @@
   margin: 0 auto;
 }
 
-.bento-grid {
+.landing-bento-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   auto-rows: minmax(220px, auto);
+  perspective: 1000px; /* Important for 3D effect */
 }
 
-.bento-card {
-  background: var(--bg-card);
+.landing-bento-card {
+  background: var(--landing-card-bg); /* Strict dark theme background */
   border: 1px solid var(--border-light);
   border-radius: 24px;
   padding: 2.5rem;
-  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  color: #f8fafc; /* Strict light text */
+  cursor: crosshair;
 }
 
-.bento-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(255,255,255,0.2);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-}
-
-.bento-card::before {
+.landing-bento-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -293,7 +289,7 @@
   grid-row: span 1;
 }
 
-.bento-icon-wrapper {
+.landing-bento-icon {
   width: 60px;
   height: 60px;
   border-radius: 16px;
@@ -303,22 +299,24 @@
   margin-bottom: 1.5rem;
 }
 
-.bento-icon-wrapper.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-.bento-icon-wrapper.green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-.bento-icon-wrapper.purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
-.bento-icon-wrapper.orange { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
-.bento-icon-wrapper.yellow { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+.landing-bento-icon.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.landing-bento-icon.green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.landing-bento-icon.purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+.landing-bento-icon.orange { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+.landing-bento-icon.yellow { background: rgba(234, 179, 8, 0.15); color: #facc15; }
 
-.bento-card h3 {
+.landing-bento-card h3 {
   font-size: 1.3rem;
   margin-bottom: 1rem;
   font-weight: 700;
+  color: #f8fafc;
 }
 
-.bento-card p {
-  color: var(--text-secondary);
+.landing-bento-card p {
+  color: #94a3b8;
   line-height: 1.6;
   font-size: 0.95rem;
+  margin: 0;
 }
 
 /* Workflow Section */
@@ -427,7 +425,7 @@
 
 /* Responsive */
 @media (max-width: 992px) {
-  .bento-grid {
+  .landing-bento-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   .bento-large {
@@ -455,7 +453,7 @@
   .hero-title {
     font-size: 2.5rem;
   }
-  .bento-grid {
+  .landing-bento-grid {
     grid-template-columns: 1fr;
   }
   .bento-large, .bento-medium, .bento-small {

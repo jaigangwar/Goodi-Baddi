@@ -1,12 +1,14 @@
-// Header Component
-
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { LogOut, LayoutDashboard, Search, UserPlus, Shield } from 'lucide-react';
 import './Header.css';
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isLandingPage = location.pathname === '/';
 
   const handleLogout = () => {
     logout();
@@ -14,31 +16,45 @@ const Header = () => {
   };
 
   return (
-    <header className="header">
+    <header className={`premium-header ${isLandingPage ? 'header-floating-dark' : 'header-light'}`}>
       <div className="header-container">
-        <Link to="/" className="logo">
-          <h1>Goodi Baddi</h1>
+        <Link to="/" className="logo-container">
+          <div className={`logo-box ${isLandingPage ? 'logo-dark' : 'logo-light'}`}>GB</div>
+          <span className="logo-text">Goodi Baddi</span>
         </Link>
 
-        <nav className="nav">
+        <nav className="nav-links">
           {isAuthenticated ? (
             <>
-              <Link to="/dashboard" className="nav-link">Dashboard</Link>
-              <Link to="/search" className="nav-link">Search</Link>
-              <Link to="/add-employee" className="nav-link">Add Employee</Link>
+              <Link to="/dashboard" className="nav-link">
+                <LayoutDashboard size={18} /> <span>Dashboard</span>
+              </Link>
+              <Link to="/search" className="nav-link">
+                <Search size={18} /> <span>Search</span>
+              </Link>
+              <Link to="/add-employee" className="nav-link">
+                <UserPlus size={18} /> <span>Add</span>
+              </Link>
               {user?.role === 'Super_Admin' && (
-                <Link to="/admin" className="nav-link">Admin Panel</Link>
+                <Link to="/admin" className="nav-link">
+                  <Shield size={18} /> <span>Admin</span>
+                </Link>
               )}
-              <div className="user-menu">
-                <span className="user-name">{user?.companyName || user?.hrName}</span>
-                <button onClick={handleLogout} className="btn-logout">Logout</button>
+              
+              <div className="user-profile-section">
+                <div className="user-avatar">
+                  {(user?.hrName || user?.companyName || 'U').charAt(0).toUpperCase()}
+                </div>
+                <button onClick={handleLogout} className="btn-logout-premium">
+                  <LogOut size={18} />
+                </button>
               </div>
             </>
           ) : (
-            <>
-              <Link to="/login" className="nav-link">Login</Link>
-              <Link to="/signup" className="btn-primary">Sign Up</Link>
-            </>
+            <div className="auth-buttons">
+              <Link to="/login" className="btn-nav-login">Sign In</Link>
+              <Link to="/signup" className="btn-nav-signup">Get Started</Link>
+            </div>
           )}
         </nav>
       </div>
