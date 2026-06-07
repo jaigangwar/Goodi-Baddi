@@ -18,7 +18,7 @@ const ProtectedRoute = ({ children, requireVerified = true, requireAdmin = false
     return <Navigate to="/login" replace />;
   }
 
-  if (requireVerified && user?.status !== 'Verified') {
+  if (requireVerified && user?.status !== 'Verified' && user?.role !== 'Admin') {
     return (
       <div className="container" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
         <h2>Account Pending Verification</h2>
