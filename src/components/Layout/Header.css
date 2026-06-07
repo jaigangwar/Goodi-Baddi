@@ -167,6 +167,24 @@
   border-left: 1px solid rgba(100, 116, 139, 0.2);
 }
 
+.user-role-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  border: 1px solid #e2e8f0;
+}
+
+.header-floating-dark .user-role-badge {
+  background: rgba(255,255,255,0.1);
+  color: #e2e8f0;
+  border-color: rgba(255,255,255,0.1);
+}
+
 .user-avatar {
   width: 36px;
   height: 36px;

@@ -26,22 +26,25 @@ const Header = () => {
         <nav className="nav-links">
           {isAuthenticated ? (
             <>
-              <Link to="/dashboard" className="nav-link">
-                <LayoutDashboard size={18} /> <span>Dashboard</span>
-              </Link>
+              {user?.role === 'Admin' ? (
+                <Link to="/admin" className="nav-link">
+                  <Shield size={18} /> <span>Admin Panel</span>
+                </Link>
+              ) : (
+                <Link to="/dashboard" className="nav-link">
+                  <LayoutDashboard size={18} /> <span>Dashboard</span>
+                </Link>
+              )}
+              
               <Link to="/search" className="nav-link">
                 <Search size={18} /> <span>Search</span>
               </Link>
               <Link to="/add-employee" className="nav-link">
                 <UserPlus size={18} /> <span>Add</span>
               </Link>
-              {user?.role === 'Admin' && (
-                <Link to="/admin" className="nav-link">
-                  <Shield size={18} /> <span>Admin</span>
-                </Link>
-              )}
               
               <div className="user-profile-section">
+                <div className="user-role-badge">{user?.role}</div>
                 <div className="user-avatar">
                   {(user?.hrName || user?.companyName || 'U').charAt(0).toUpperCase()}
                 </div>
