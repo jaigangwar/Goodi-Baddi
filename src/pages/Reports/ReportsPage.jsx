@@ -10,8 +10,6 @@ const ReportsPage = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { loadReports(); }, []);
-
   const loadReports = async () => {
     try {
       const res = await getMyReports();
@@ -19,6 +17,8 @@ const ReportsPage = () => {
     } catch (e) { console.error(e); } 
     finally { setLoading(false); }
   };
+
+  useEffect(() => { loadReports(); }, []);
 
   const getStatusInfo = (status) => {
     switch (status) {

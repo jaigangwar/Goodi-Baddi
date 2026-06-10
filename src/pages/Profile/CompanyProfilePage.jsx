@@ -20,10 +20,6 @@ const CompanyProfilePage = () => {
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -38,12 +34,16 @@ const CompanyProfilePage = () => {
           linkedinProfile: c.linkedinProfile || ''
         });
       }
-    } catch (error) {
+    } catch {
       setMessage('Failed to load profile');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadProfile();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -452,6 +452,10 @@
   .search-card {
     grid-column: span 2;
   }
+  
+  .stat-card-last {
+    grid-column: span 2;
+  }
 }
 
 @media (max-width: 768px) {
@@ -459,7 +463,7 @@
     grid-template-columns: 1fr;
   }
   
-  .welcome-card, .search-card, .actions-card, .recent-card, .stat-card {
+  .welcome-card, .search-card, .actions-card, .recent-card, .stat-card, .stat-card-last {
     grid-column: span 1;
   }
   
@@ -469,5 +473,17 @@
   
   .action-buttons-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-title {
+    font-size: 1.8rem;
+  }
+  .welcome-desc {
+    font-size: 0.9rem;
+  }
+  .bento-dashboard {
+    padding: 1.5rem 1rem;
   }
 }

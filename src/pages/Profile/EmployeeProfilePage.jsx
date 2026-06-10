@@ -16,10 +16,6 @@ const EmployeeProfilePage = () => {
   const [reportData, setReportData] = useState({ category: 'Wrong Employee Record', description: '' });
   const [reportMessage, setReportMessage] = useState('');
 
-  useEffect(() => {
-    loadEmployeeProfile();
-  }, [id]);
-
   const loadEmployeeProfile = async () => {
     try {
       setLoading(true);
@@ -33,6 +29,10 @@ const EmployeeProfilePage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadEmployeeProfile();
+  }, [id]);
 
   const handleDelete = async () => {
     try {

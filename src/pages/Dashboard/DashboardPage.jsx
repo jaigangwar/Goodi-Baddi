@@ -15,10 +15,6 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
   const loadDashboardData = async () => {
     try {
       setLoading(true);
@@ -33,6 +29,10 @@ const DashboardPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -133,7 +133,7 @@ const DashboardPage = () => {
         </motion.div>
 
         {/* Stat 3 */}
-        <motion.div className="bento-card stat-card" variants={itemVariants}>
+        <motion.div className="bento-card stat-card stat-card-last" variants={itemVariants}>
           <div className="stat-header">
             <div className="icon-box green-box">
               <Activity size={22} />

@@ -19,12 +19,6 @@ const SearchPage = () => {
   const [searched, setSearched] = useState(false);
   const [message, setMessage] = useState(location.state?.message || '');
 
-  useEffect(() => {
-    if (searchParams.get('q')) {
-      handleSearch();
-    }
-  }, []);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -60,6 +54,12 @@ const SearchPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (searchParams.get('q')) {
+      handleSearch();
+    }
+  }, []);
 
   const handleClear = () => {
     setFormData({ name: '', mobile: '', email: '', linkedin: '' });

@@ -16,8 +16,6 @@ const AddFeedbackPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
 
-  useEffect(() => { loadEmployee(); }, [id]);
-
   const loadEmployee = async () => {
     try {
       const response = await getEmployeeById(id);
@@ -25,6 +23,8 @@ const AddFeedbackPage = () => {
     } catch { setMessage('Failed to load employee details'); } 
     finally { setLoading(false); }
   };
+
+  useEffect(() => { loadEmployee(); }, [id]);
 
   const handleCategoryToggle = (category, type) => {
     const field = type === 'positive' ? 'positiveCategories' : 'negativeCategories';

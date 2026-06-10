@@ -24,10 +24,6 @@ const EditEmployeePage = () => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    loadEmployee();
-  }, [id]);
-
   const loadEmployee = async () => {
     try {
       setLoading(true);
@@ -46,12 +42,16 @@ const EditEmployeePage = () => {
           employmentType: emp.employmentType || 'Full-time'
         });
       }
-    } catch (error) {
+    } catch {
       setMessage('Failed to load employee details');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadEmployee();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

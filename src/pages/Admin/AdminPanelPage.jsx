@@ -17,8 +17,6 @@ const AdminPanelPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [resolutionTexts, setResolutionTexts] = useState({});
 
-  useEffect(() => { loadData(); }, [activeTab, filterStatus]);
-
   const loadData = async () => {
     try {
       setLoading(true);
@@ -32,6 +30,8 @@ const AdminPanelPage = () => {
     } catch (e) { setMessage(e.message || 'Failed to load data'); } 
     finally { setLoading(false); }
   };
+
+  useEffect(() => { loadData(); }, [activeTab, filterStatus]);
 
   const handleVerify = async (id, action) => {
     setActionLoading(true); setMessage('');

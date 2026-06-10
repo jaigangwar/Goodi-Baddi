@@ -222,3 +222,10 @@
   .td { padding: 0.5rem 0; border: none; }
   .admin-reports-grid { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 600px) {
+  .admin-bento-tabs {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
