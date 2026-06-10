@@ -19,12 +19,17 @@ const ProtectedRoute = ({ children, requireVerified = true, requireAdmin = false
   }
 
   if (requireVerified && user?.status !== 'Verified' && user?.role !== 'Admin') {
+    const isRejected = user?.status === 'Rejected';
     return (
       <div className="container" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-        <h2>Account Pending Verification</h2>
-        <p>Your company account is awaiting admin approval. You'll receive an email once verified.</p>
+        <h2>{isRejected ? 'Account Verification Rejected' : 'Account Pending Verification'}</h2>
+        <p>
+          {isRejected 
+            ? 'Your company account verification has been rejected by the admin. Please contact support if you believe this is a mistake.' 
+            : 'Your company account is awaiting admin approval. You\'ll receive an email once verified.'}
+        </p>
         <p style={{ marginTop: '1rem', color: '#6b7280' }}>
-          Status: <strong>{user?.status || 'Pending'}</strong>
+          Status: <strong style={{ color: isRejected ? '#ef4444' : '#d97706' }}>{user?.status || 'Pending'}</strong>
         </p>
       </div>
     );

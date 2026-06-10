@@ -19,6 +19,26 @@ export const AuthProvider = ({ children }) => {
     if (token && userData) {
       setUser(userData);
       setIsAuthenticated(true);
+      
+      // Fetch fresh profile in background to sync status/role changes (e.g. verified or rejected)
+      supabase
+        .from('companies')
+        .select('*')
+        .eq('id', userData.id)
+        .single()
+        .then(({ data: profile, error }) => {
+          if (!error && profile) {
+            const updatedUser = {
+              ...userData,
+              companyName: profile.company_name,
+              hrName: profile.hr_name,
+              role: profile.role,
+              status: profile.status
+            };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+          }
+        });
     }
     
     // 2. Listen to Supabase Auth Changes (Crucial for Google OAuth)

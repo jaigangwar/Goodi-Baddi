@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCompanies, verifyCompany, deleteCompany, getReports, resolveReport } from '../../services/adminService';
+import { deleteEmployee } from '../../services/employeeService';
+import { deleteFeedback } from '../../services/feedbackService';
 import { COMPANY_STATUS } from '../../config/constants';
 import { motion } from 'framer-motion';
 import { ShieldAlert, Building2, ChevronLeft, CheckCircle, XCircle, Trash2, Shield, Filter, Search } from 'lucide-react';
@@ -71,6 +73,42 @@ const AdminPanelPage = () => {
     finally { setActionLoading(false); }
   };
 
+  const handleDeleteTarget = async (report) => {
+    const { targetId, targetType, targetName } = report;
+    if (!window.confirm(`Are you sure you want to permanently delete this reported ${targetType} "${targetName}"?`)) return;
+    
+    setActionLoading(true); setMessage('');
+    try {
+      let res;
+      if (targetType === 'Employee') {
+        res = await deleteEmployee(targetId);
+      } else if (targetType === 'Feedback') {
+        res = await deleteFeedback(targetId);
+      } else {
+        throw new Error('Unsupported target type for direct deletion');
+      }
+      
+      if (res.success) {
+        const note = resolutionTexts[report.id] || `Report resolved: flag approved, ${targetType.toLowerCase()} deleted by Admin.`;
+        await resolveReport(report.id, 'approve', note);
+        setResolutionTexts(prev => ({ ...prev, [report.id]: '' }));
+        setMessage(`${targetType} deleted and report resolved successfully`);
+        loadData();
+      }
+    } catch (e) {
+      setMessage(e.message || `Failed to delete reported ${targetType.toLowerCase()}`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const isError = message && (
+    message.toLowerCase().includes('failed') ||
+    message.toLowerCase().includes('error') ||
+    message.toLowerCase().includes('invalid') ||
+    message.toLowerCase().includes('required')
+  );
+
   return (
     <div className="bento-subpage">
       <div className="bento-container-narrow" style={{maxWidth: '1000px'}}>
@@ -85,7 +123,7 @@ const AdminPanelPage = () => {
           </div>
         </div>
 
-        {message && <motion.div className={`message ${message.includes('success') || message.includes('resolved') || message.includes('approved') ? 'success' : 'error'}`} initial={{opacity:0}} animate={{opacity:1}}>{message}</motion.div>}
+        {message && <motion.div className={`message ${isError ? 'error' : 'success'}`} initial={{opacity:0}} animate={{opacity:1}}>{message}</motion.div>}
 
         <div className="admin-bento-tabs">
           <button className={`admin-tab ${activeTab === 'companies' ? 'active' : ''}`} onClick={() => setActiveTab('companies')}>
@@ -106,7 +144,7 @@ const AdminPanelPage = () => {
                 <div className="admin-filter-bar">
                   <div className="input-wrapper" style={{maxWidth: '250px'}}>
                     <Filter className="input-icon" size={18}/>
-                    <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="premium-select" style={{paddingLeft: '2.5rem', border: 'none', background: '#f8fafc'}}>
+                    <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="premium-select" style={{paddingLeft: '2.5rem', border: 'none'}}>
                       <option value="">All Statuses</option>
                       {Object.values(COMPANY_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -125,7 +163,12 @@ const AdminPanelPage = () => {
                           <div className="admin-avatar">{company.companyName.charAt(0)}</div>
                           <div>
                             <strong>{company.companyName}</strong>
-                            <span>{company.email} • HR: {company.hrName}</span>
+                            <span>{company.email} • HR: {company.hrName} • Phone: {company.mobile}</span>
+                            {company.linkedinUrl && (
+                              <a href={company.linkedinUrl} target="_blank" rel="noopener noreferrer" className="admin-linkedin-link" style={{fontSize: '0.8rem', color: '#2563eb', textDecoration: 'underline', display: 'block', marginTop: '4px'}}>
+                                LinkedIn Profile
+                              </a>
+                            )}
                           </div>
                         </div>
                         <div className="td">
@@ -157,13 +200,26 @@ const AdminPanelPage = () => {
                       <h3><ShieldAlert size={18} color="#ef4444"/> {report.reason}</h3>
                       <span className={`status-pill ${(report.status || 'pending').toLowerCase()}`}>{report.status || 'Pending'}</span>
                     </div>
+                    
+                    <div className="report-reporter-info">
+                      <strong>Reporter:</strong> {report.reporterName}
+                    </div>
+
+                    <div className="report-target-info">
+                      <strong>Reported {report.targetType}:</strong> {report.targetName}
+                      {report.targetDetail && <div className="report-target-detail">{report.targetDetail}</div>}
+                    </div>
+
                     {report.description && <div className="report-admin-desc">"{report.description}"</div>}
                     
                     {report.status === 'Pending' && (
                       <div className="report-admin-resolve">
                         <textarea placeholder="Write resolution note to the reporter..." value={resolutionTexts[report.id] || ''} onChange={(e) => setResolutionTexts(prev => ({...prev, [report.id]: e.target.value}))} rows="2"/>
                         <div className="report-admin-btns">
-                          <button onClick={() => handleResolveReport(report.id, 'approve')} disabled={actionLoading} className="btn-bento-primary btn-sm"><CheckCircle size={16}/> Resolve</button>
+                          {report.targetExists && (report.targetType === 'Employee' || report.targetType === 'Feedback') && (
+                            <button onClick={() => handleDeleteTarget(report)} disabled={actionLoading} className="btn-bento-danger btn-sm" style={{flex: '1.5'}}><Trash2 size={16}/> Delete Target & Resolve</button>
+                          )}
+                          <button onClick={() => handleResolveReport(report.id, 'approve')} disabled={actionLoading} className="btn-bento-primary btn-sm"><CheckCircle size={16}/> Resolve Only</button>
                           <button onClick={() => handleResolveReport(report.id, 'dismiss')} disabled={actionLoading} className="btn-bento-secondary btn-sm"><XCircle size={16}/> Dismiss</button>
                         </div>
                       </div>
